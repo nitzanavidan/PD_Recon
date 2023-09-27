@@ -19,7 +19,7 @@ from .mri_module import MriModule
 
 class ResUnetKspaceModule(MriModule):
     """
-    Unet training module.
+    training module.
 
     This can be used to train baseline U-Nets from the paper:
 
@@ -87,31 +87,20 @@ class ResUnetKspaceModule(MriModule):
         return self.model(kspace, mask)
 
     def training_step(self, batch, batch_idx):
-        print('training step')
         output = self(batch.image, batch.mask)
 
-        output_relog = torch.exp(output / 1e5) - 1
-        target_relog = torch.exp(batch.target / 1e5) - 1
-
-        recon_imgs = fastmri.complex_abs(fastmri.ifft2c(output_relog.permute(0, 2, 3, 1)))
-        tgt_imgs =  fastmri.complex_abs(fastmri.ifft2c(target_relog.permute(0, 2, 3, 1)))
-        print('regularization', self.reg)
-        loss = F.l1_loss(output, batch.target) + self.reg * F.l1_loss(recon_imgs, tgt_imgs) # k-space + reg * image
+        loss = F.l1_loss(output, batch.target)
         self.log("loss", loss.detach())
 
         return loss
+
+        
 
     def validation_step(self, batch, batch_idx):
         print('validation step')
         output = self(batch.image, batch.mask)
 
-        output_relog = torch.exp(output / 1e5) - 1
-        target_relog = torch.exp(batch.target / 1e5) - 1
-
-        recon_imgs = fastmri.complex_abs(fastmri.ifft2c(output_relog.permute(0, 2, 3, 1)))
-        tgt_imgs = fastmri.complex_abs(fastmri.ifft2c(target_relog.permute(0, 2, 3, 1)))
-
-        loss = F.l1_loss(output, batch.target) + self.reg * F.l1_loss(recon_imgs,tgt_imgs) # k-space + reg * image
+        loss = F.l1_loss(output, batch.target) 
 
 
         # relog

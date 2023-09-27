@@ -16,13 +16,6 @@ from torch.nn import functional as F
 from typing import List, Tuple, Optional
 import math
 
-def DataConsist(kspace_rec, kspace_us, mask):
-    # mask = mask.permute(0,1,3,2)
-    rec_consist = kspace_rec * (1 - mask) + kspace_us
-
-    return rec_consist
-
-
 
 class KspaceUnet(nn.Module):
     """
@@ -257,8 +250,6 @@ class KspaceMaskResUnet(KspaceUnet):
             output = torch.cat([output, downsample_layer], dim=1)
             output = conv(output)
 
-        # # data consistency term
-        # output = DataConsist(output, image, mask)
 
         # Residual
         output = output + image
