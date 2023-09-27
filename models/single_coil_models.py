@@ -107,9 +107,6 @@ class KspaceUnet(nn.Module):
             output = torch.cat([output, downsample_layer], dim=1)
             output = conv(output)
 
-        # data consistency term
-        output = DataConsist(output, image, mask)
-
         return output
 
 
